@@ -24,8 +24,6 @@ M = N // 2
 count_zero_elements = 0  # Кол-во нулевых элементов
 count_negative_elements = 0  # кол-во отрицательных элементов
 
-
-
 print("B")
 b = np.random.randint(-10, 10, (M, M))
 print(b, '\n')
@@ -45,8 +43,6 @@ a = np.vstack(((np.hstack([d, e])), (np.hstack([c, b]))))
 print(a)
 
 print()
-
-
 #  **** Определитель матрицы A
 det_A = int(np.linalg.det(a))
 print(f"Определитель матрицы A: {det_A}")
@@ -92,7 +88,6 @@ else:
 summ_diagonal_elements = sum(np.diagonal(f))
 print("Сумма Диагональных элементов:", summ_diagonal_elements)
 
-
 if det_A > summ_diagonal_elements:
     print("Определитель Матрицы А больше суммы диагональных элементов матрицы F")
     print("A-1")
@@ -128,9 +123,6 @@ else:
     rezult = (np.matrix.transpose(a) + g - np.linalg.inv(f)) * K
     print(rezult)
 
-
-
-
 F3 = f.reshape(-1)
 x = list()
 for i in range(N):
@@ -141,7 +133,6 @@ pylab.plot(x, F3, marker='o', markersize=3)
 pylab.xlabel('Индекс элемента')
 pylab.ylabel('Значение')
 pylab.title('Первый график')
-
 
 pylab.subplot(2, 2, 2)
 F4 = np.sort(f, axis=None)

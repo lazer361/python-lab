@@ -26,8 +26,8 @@ numbers_dict = {
 }
 
 filtered_numbers = []
-min_number = float('inf')
-max_number = float('-inf')
+min_number = 0
+max_number = 1000000
 
 with open("input.txt", "r", encoding="utf-8") as file:
     content = file.read()

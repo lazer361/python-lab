@@ -26,8 +26,8 @@ numbers_dict = {
 }
 
 filtered_numbers = []
-min_number = float('inf')
-max_number = float('-inf')
+min_number = 0
+max_number = 1000000
 
 file = open("input.txt", "r", encoding="utf-8")
 
@@ -43,7 +43,7 @@ while True:
                 # Проверка на число
                 if number_str.isdigit():
                     number = int(number_str)
-                    if 0 < number <= 1_000_000 and len(str(number)) >= 3 and str(number)[:2] == '77' and str(number)[:3] != '777':
+                    if 0 < number <= 1000000 and len(str(number)) >= 3 and str(number)[:2] == '77' and str(number)[:3] != '777':
                         filtered_numbers.append(number)
                         min_number = min(min_number, number)
                         max_number = max(max_number, number)

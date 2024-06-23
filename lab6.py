@@ -9,7 +9,7 @@
 
 """1 Часть"""
 import itertools
-import time
+import timeit
 import random
 
 def get_integer_input(prompt, max_value):
@@ -32,7 +32,7 @@ if num_players != 18:
 # Создаем пустой список игроков
 players = []
 
-# Генерируем рандомные имена игроков
+# Генерируем рандомные позицие игроков
 for i in range(num_players):
     # Определяем позицию игрока
     position = random.choice(["Вратарь", "Нападающий", "Защитник"])
@@ -94,15 +94,16 @@ if len(final_team) == 11:
     ]
 
   # Измерение времени выполнения
-  start_time = time.time()
   rosters_iterative = generate_rosters_iterative(selected_goalie, selected_forwards, selected_defenders, len(final_team))
-  end_time = time.time()
-  iterative_time = end_time - start_time
-
-  start_time = time.time()
+  iterative_time = timeit.timeit(
+      lambda: rosters_iterative,
+      number=1
+  )
   rosters_functional = generate_rosters_functional(selected_goalie, selected_forwards, selected_defenders, len(final_team))
-  end_time = time.time()
-  functional_time = end_time - start_time
+  functional_time = timeit.timeit(
+      lambda: rosters_functional,
+      number=1
+  )
 
   # Вывод результатов
   print("Количество возможных составов:", len(rosters_iterative))

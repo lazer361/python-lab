@@ -9,8 +9,7 @@
 
 import tkinter as tk
 import random
-import time
-import itertools
+import timeit
 
 def generate_roster():
     output_text.delete("1.0", tk.END)
@@ -49,10 +48,7 @@ def generate_roster():
         if len(final_team) == 11:
 
             # Вывод всех возможных составов
-            start_time = time.time()
             rosters_universal = generate_rosters_universal(selected_goalie, selected_forwards, selected_defenders, len(final_team))
-            end_time = time.time()
-            universal_time = end_time - start_time
 
             # Находим состав с максимальной силой
             best_roster = None
@@ -67,7 +63,6 @@ def generate_roster():
             for roster in rosters_universal:
                 output_text.insert(tk.END, f"{roster}\n")
             output_component.insert(tk.END, f"\n {best_roster}\n\n")
-
 
         else:
             output_text.insert(tk.END, "Ошибка: не удалось сформировать состав из 11 игроков.\n")

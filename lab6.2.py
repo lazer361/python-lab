@@ -8,8 +8,7 @@
 Вывести все возможные варианты основных составов команды на игру.
 """
 
-import itertools
-import time
+import timeit
 import random
 
 def get_integer_input(prompt, max_value):
@@ -95,10 +94,11 @@ if len(final_team) == 11:
 
   # Измерение времени выполнения
 
-  start_time = time.time()
   rosters_universal = generate_rosters_universal(selected_goalie, selected_forwards, selected_defenders, len(final_team))
-  end_time = time.time()
-  universal_time = end_time - start_time
+  universal_time = timeit.timeit(
+      lambda: rosters_universal,
+      number=1
+  )
 
   # Находим состав с максимальной силой
   best_roster = None
