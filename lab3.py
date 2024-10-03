@@ -19,129 +19,105 @@ D	С
 
 import random
 
-count_zero_elements = 0  # Кол-во нулевых элементов
-count_negative_elements = 0  # кол-во отрицательных элементов
-# Вводим два числа K и N
-K = int(input("Введите число K: "))
-N = int(input("Введите число N: "))
-# Примечание! Т.к в ТЗ, матрица состоит из 4-х равных по размерам под матриц следует что N % 2 == 0 и N >= 6
+K = int(input("Введите K: "))
+while True:
+    N = int(input("Введите размер/ранг матрицы (N): "))
+    if N >= 6 and N % 2 == 0:
+        break
+    else:
+        print(
+            "Пожалуйста, введите размер/ранг матрицы (N) число больше/равно 6 и четное число для равных по размеру подматриц")
+submatrix_size = N // 2
 
-middle_line = N // 2  # Размерность под матрицы D, E, C, B и средняя линия
+# Создание подматриц
+E = [[random.randint(-10, 10) for _ in range(submatrix_size)] for _ in range(submatrix_size)]
+B = [[random.randint(-10, 10) for _ in range(submatrix_size)] for _ in range(submatrix_size)]
+D = [[random.randint(-10, 10) for _ in range(submatrix_size)] for _ in range(submatrix_size)]
+C = [[random.randint(-10, 10) for _ in range(submatrix_size)] for _ in range(submatrix_size)]
 
-#Умножение матриц
-def multiply_matrix(m1, m2):
-    return [
-        [sum(x * y for x, y in zip(m1_r, m2_c)) for m2_c in zip(*m2)] for m1_r in m1
-    ]
-
-#Вывод матриц
-def print_matrix(arr):
-    for i in range(len(arr)):
-        for j in range(len(arr)):
-            print("{:5d}".format(arr[i][j]), end="")
-        print()
-
-
-# Создаем матрицу A NxN и заполняем ее вручную
+# Создание матрицы A
+A = [E[i] + B[i] for i in range(submatrix_size)] + [D[i] + C[i] for i in range(submatrix_size)]
 print("Матрица A:")
-A = [[random.randint(-10, 10) for i in range(N)] for j in range(N)]
+for row in A:
+    print(row)
+
+# Подсчет нулей в нечетных столбцах E
+zero_count = 0
+for i in range(submatrix_size):
+    for j in range(submatrix_size):
+        if (j % 2) == 1 and E[i][j] == 0:
+            zero_count += 1
+
+# Подсчет отрицательных элементов в четных строках E
+negative_count = 0
+for i in range(submatrix_size):
+    for j in range(submatrix_size):
+        if (i % 2) == 0 and E[i][j] < 0:
+            negative_count += 1
+
+# Создание матрицы F
+F = [E[i] + B[i] for i in range(submatrix_size)] + [D[i] + C[i] for i in range(submatrix_size)]
+print("Матрица F:")
+for row in F:
+    print(row)
+
+# Обмен областей в F
+if zero_count > negative_count:
+    for i in range(submatrix_size, N):
+        for j in range(submatrix_size):
+            temp = F[i][j]
+            F[i][j] = F[i - submatrix_size][j + submatrix_size]
+            F[i - submatrix_size][j + submatrix_size] = temp
+else:
+    for i in range(submatrix_size):
+        for j in range(submatrix_size):
+            temp = F[i][j]
+            F[i][j] = F[i + submatrix_size][j]
+            F[i + submatrix_size][j] = temp
+
+print("Матрица F после преобразования:")
+for row in F:
+    print(row)
+
+# Транспонирование матрицы A
+AT = [[0 for _ in range(N)] for _ in range(N)]
 for i in range(N):
     for j in range(N):
-        A[i][j] = random.randint(-3, 3)
-        print("{:4d}".format(A[i][j]), end="")
-    print()
+        AT[j][i] = A[i][j]
+print("Транспонированная матрица A (AT):")
+for row in AT:
+    print(row)
 
-D = [[A[i][j] for j in range(N // 2)] for i in range(N//2)]
-E = [[A[i][j] for j in range(N // 2, N)] for i in range(0, N//2)]
-C = [[A[i][j] for j in range(N // 2)] for i in range(N//2, N)]
-B = [[A[i][j] for j in range(N // 2, N)] for i in range(N//2, N)]
-
-F = [[A[i][j] for j in range(N)] for i in range(N)] # Матрица F, при этом матрица А не меняется
-
-# Работаем с E - область 4
-for i in range(0, middle_line // 2): #0 3
-    for j in range(i+1, (middle_line - i)-1): # 6 12
-        if j % 2 == 0 and E[i][j] == 0:
-            count_zero_elements += 1
-print("Кол-во нулевых элементов в нечётных столбцах: ", count_zero_elements)
-
-# Работаем с E - область 1
-for j in range(middle_line - 1, (middle_line // 2), -1):  # [8;5]  8 7 6 5
-    for i in range(middle_line - j, middle_line - (middle_line - j)):
-        if i % 2 != 0 and E[i][j] < 0:
-            count_negative_elements += 1
-print("Кол-во отрицательных элементов в чётных строках: ", count_negative_elements)
-
-# Основная часть лаб. Работы
-if count_zero_elements > count_negative_elements: # меняем в B симметрично области 4 и 3 местами
-    print("Кол-во нулевых элементов в нечётных столбцах БОЛЬШЕ, чем Кол-во отрицательных элементов в чётных строках ")
-    # Работаем с матрицей B
-    for i in range(0, middle_line // 2):  # 0 3
-        for j in range(i + 1, (middle_line - i) - 1):  # 6 12
-            # print(i, j)
-            B[i][j], B[j][i] = B[j][i], B[i][j]
-else:  # меняем B и E местами несимметрично
-    print("Кол-во нулевых элементов в нечётных столбцах МЕНЬШЕ, чем Кол-во отрицательных элементов в чётных строках ")
-    B, E = E, B
-
-# Собираю матрицу F из D C E B
-
-for i in range(N // 2):
-    for j in range(N // 2):
-        F[i][j] = D[i][j]  # D
-
-for i in range(N // 2):
-    for j in range(N // 2, N):
-        F[i][j] = E[i][j - (N // 2)]  # E
-
-for i in range(N // 2, N):
-    for j in range(N // 2):
-        F[i][j] = C[i - N // 2][j]  # C
-
-for i in range(N // 2, N):
-    for j in range(N // 2, N):
-        F[i][j] = B[i - N // 2][j - N // 2]  # B
-
-print("Матрица F: ") # новая сформированная матрица F
-print_matrix(F)
-
-# Матрицы
-
-AT = [[random.randint(0, 0) for i in range(N)] for j in range(N)]
-KF = [[random.randint(0, 0) for i in range(N)] for j in range(N)]
-F_plus_A = [[random.randint(0, 0) for i in range(N)] for j in range(N)]
-FA_KF = [[random.randint(0, 0) for i in range(N)] for j in range(N)]
-FA_KF_AT = [[random.randint(0, 0) for i in range(N)] for j in range(N)]
-# Суммирую две матрицы
+# Сложение матриц F и A
+FA = [[0 for _ in range(N)] for _ in range(N)]
 for i in range(N):
     for j in range(N):
-        F_plus_A[i][j] = F[i][j] + A[i][j]
-print("Матрица F+A: ")
+        FA[i][j] = F[i][j] + A[i][j]
+print("F + A:")
+for row in FA:
+    print(row)
 
-print_matrix(F_plus_A)
+# Умножение матрицы F на K
+K_F = [[K * element for element in row] for row in F]
+print("K * F:")
+for row in K_F:
+    print(row)
 
+# Вычитание K_F из FA
+FA_K_F = [[0 for _ in range(N)] for _ in range(N)]
 for i in range(N):
     for j in range(N):
-        KF[i][j] = K * F[i][j]
+        FA_K_F[i][j] = FA[i][j] - K_F[i][j]
+print("F + A - K * F:")
+for row in FA_K_F:
+    print(row)
 
-print("Матрица KF: ")
-
-print_matrix(KF)
-
+# Умножение FA_K_F на AT
+result = [[0 for _ in range(N)] for _ in range(N)]
 for i in range(N):
     for j in range(N):
-        FA_KF[i][j] = F_plus_A[i][j] - KF[i][j]
-
-print("Матрица (F+A)-(K*F): ")
-print_matrix(FA_KF)
-
-for i in range(N):
-    for j in range(N):
-        AT[i][j] = A[j][i]
-
-
-print("Матрица AT: ") # Транспанированная матрица A
-print_matrix(AT)
-print("Матрица ((F+A)– (K * F) )*AT : ")
-FA_KF_AT = multiply_matrix(FA_KF, AT)
-print_matrix(FA_KF_AT)
+        for k in range(N):
+            result[i][j] += FA_K_F[i][k] * AT[k][j]
+print("((F + A) - (K * F)) * AT:")
+for row in result:
+    print(row)
