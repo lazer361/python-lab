@@ -9,113 +9,58 @@
 """
 
 import timeit
-import random
+import itertools
 
-def get_integer_input(prompt, max_value):
-  while True:
-    value_input = input(prompt)
-    if value_input.isdigit() and 0 <= int(value_input) <= max_value:
-      return int(value_input)
+while True:
+    goalies = int(input("Введите количество вратарей (не более 1): "))
+    if goalies > 1 or goalies < 1:
+        print("Неверное количество вратарей. Введите число не больше 1 и не меньше 1.")
     else:
-      print(f"Введите целое число от 0 до {max_value}.")
+        break
 
-# Получаем ввод пользователя с использованием функции
-num_players = int(input("Введите количество игроков (18): "))
+while True:
+    forwards = int(input("Введите количество нападающих (не более 4): "))
+    if forwards > 4 or forwards < 1:
+        print("Неверное количество нападающих. Введите число не больше 4 и не меньше 1.")
+    else:
+        break
 
-# Проверяем, что количество игроков равно 18
-if num_players != 18:
-    print("Ошибка: количество игроков должно быть равно 18!")
-    exit()
+while True:
+    defenders = int(input("Введите количество защитников (не более 6): "))
+    if defenders > 6 or defenders < 1:
+        print("Неверное количество защитников. Введите число не больше 6 и не меньше 1.")
+    else:
+        break
 
-# Создаем пустой список игроков
-players = []
+# Список всех игроков
+all_players = list(range(1, 12))
+start_time = timeit.default_timer()
 
-# Генерируем рандомные имена игроков
-for i in range(num_players):
-    # Определяем позицию игрока
-    position = random.choice(["Вратарь", "Нападающий", "Защитник"])
-    # Формируем имя игрока с номером
-    player_name = f"{position} {i + 1}"
-    # Добавляем игрока в список
-    players.append(player_name)
+# Функция для генерации вариантов составов
+def generate_lineups():
+    global defenders, forwards
+    goalies_combinations = itertools.combinations(all_players, goalies)
+    for goalie in goalies_combinations:
+        defenders_combinations = itertools.combinations(all_players, defenders)
+        for defender in defenders_combinations:
+            forwards_combinations = itertools.combinations(all_players, forwards)
+            for forward in forwards_combinations:
+                # Проверка на уникальность игроков
+                if len(set(goalie).union(set(defender)).union(set(forward))) == 11:
+                    # Проверка на ограничение
+                    if defenders <= 2:
+                        continue
+                    # Вывод состава в нужном формате
+                    yield list(goalie) + list(defender) + list(forward)
 
-goalies = [p for p in players if "Вратарь" in p]
-forwards = [p for p in players if "Нападающий" in p]
-defenders = [p for p in players if "Защитник" in p]
+# Целевая функция: Оценивает силу состава по сумме номеров игроков.
+def calculate_total_number(lineup):
+    return sum(lineup)
 
-# Выбираем случайных игроков по позициям
-selected_goalie = random.sample(goalies, 1)
-if len(forwards) >= 4:
-    selected_forwards = random.sample(forwards, 4)
-else:
-    print(f"Недостаточно Нападающих для формирования состава! Количество нападающих: {len(forwards)}. Запустите программу ещё раз.")
-    exit()
+# Находим состав с максимальной суммой номеров
+best_lineup = max(generate_lineups(), key=calculate_total_number)
 
-if len(defenders) >= 6:
-    selected_defenders = random.sample(defenders, 6)
-else:
-    print(f"Недостаточно защитников для формирования состава! Количество защитников:{len(defenders)}. Запустите программу ещё раз.")
-    exit()
+print(f"Состав с максимальной суммой номеров: {best_lineup}")
 
-# Формируем окончательный состав
-final_team = [selected_goalie] + selected_forwards + selected_defenders
-
-if len(final_team) == 11:
-  def generate_rosters_universal(goalies_list, forwards_list, defensemen_list, main_roster_size):
-    """Генерирует все возможные основные составы команды с использованием функций Python."""
-    rosters = []
-    all_players = goalies_list + forwards_list + defensemen_list
-
-    if len(all_players) < main_roster_size:
-        print(f"Ошибка: Недостаточно игроков для формирования состава из {main_roster_size} человек.")
-        return rosters
-
-    # Генерируем перестановки без рекурсии
-    for i in range(len(all_players)):
-        for j in range(i + 1, len(all_players)):
-            all_players[i], all_players[j] = all_players[j], all_players[i]
-            rosters.append(all_players[:main_roster_size].copy())
-            all_players[i], all_players[j] = all_players[j], all_players[i]
-
-    # Ограничение: генерируем только составы, где не больше 2 защитников на льду одновременно
-    valid_rosters = []
-    for roster in rosters:
-      if roster.count('Защитник') <= 2:
-        valid_rosters.append(roster)
-    return valid_rosters
-
-  def calculate_team_strength(roster):
-    """Целевая функция:  Оценивает силу состава по среднему номеру игрока."""
-    total_number = 0
-    for player in roster:
-      number = int(player.split()[-1])
-      total_number += number
-    return total_number / len(roster)
-
-  # Измерение времени выполнения
-
-  rosters_universal = generate_rosters_universal(selected_goalie, selected_forwards, selected_defenders, len(final_team))
-  universal_time = timeit.timeit(
-      lambda: rosters_universal,
-      number=1
-  )
-
-  # Находим состав с максимальной силой
-  best_roster = None
-  max_strength = float('-inf')
-  for roster in rosters_universal:
-    strength = calculate_team_strength(roster)
-    if strength > max_strength:
-      max_strength = strength
-      best_roster = roster
-
-  # Вывод результатов
-  print("Время выполнения универсального варианта:", universal_time, "секунд")
-  print("\nВсе возможные варианты Функционального:")
-  for i, roster in enumerate(rosters_universal):
-      print(f"{i+1}. {roster}")
-
-  print(f"\nСостав с максимальной силой: {best_roster}")
-  print(f"Сила состава: {max_strength}")
-else:
-  print("Такого состава не существует. Попробуйте ввести так, чтобы основных игроков было 11")
+end_time = timeit.default_timer()
+print(f"Время выполнения с помощью функций: {end_time - start_time:.2f} секунд")

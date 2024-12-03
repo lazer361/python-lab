@@ -10,110 +10,72 @@
 """1 Часть"""
 import itertools
 import timeit
-import random
 
-def get_integer_input(prompt, max_value):
-
-  while True:
-    value_input = input(prompt)
-    if value_input.isdigit() and 0 <= int(value_input) <= max_value:
-      return int(value_input)
+while True:
+    goalies = int(input("Введите количество вратарей (не более 1): "))
+    if goalies > 1 or goalies < 1:
+        print("Неверное количество вратарей. Введите число не больше 1 и не меньше 1.")
     else:
-      print(f"Введите целое число от 0 до {max_value}.")
+        break
 
-# Получаем ввод пользователя с использованием функции
-num_players = int(input("Введите количество игроков (18): "))
+while True:
+    forwards = int(input("Введите количество нападающих (не более 4): "))
+    if forwards > 4 or forwards < 1:
+        print("Неверное количество нападающих. Введите число не больше 4 и не меньше 1.")
+    else:
+        break
 
-# Проверяем, что количество игроков равно 18
-if num_players != 18:
-    print("Ошибка: количество игроков должно быть равно 18!")
-    exit()
+while True:
+    defenders = int(input("Введите количество защитников (не более 6): "))
+    if defenders > 6 or defenders < 1:
+        print("Неверное количество защитников. Введите число не больше 6 и не меньше 1.")
+    else:
+        break
 
-# Создаем пустой список игроков
-players = []
+# Список всех игроков (представим, что игроки пронумерованы)
+all_players = list(range(1, 12))
 
-# Генерируем рандомные позицие игроков
-for i in range(num_players):
-    # Определяем позицию игрока
-    position = random.choice(["Вратарь", "Нападающий", "Защитник"])
-    # Формируем имя игрока с номером
-    player_name = f"{position} {i + 1}"
-    # Добавляем игрока в список
-    players.append(player_name)
+lineups = []
+start_time = timeit.default_timer()
 
-goalies = [p for p in players if "Вратарь" in p]
-forwards = [p for p in players if "Нападающий" in p]
-defenders = [p for p in players if "Защитник" in p]
+# Перебор вариантов составов
+for goalie in range(1, 2):
+    for forward1 in range(2, 7):
+        for forward2 in range(7, 12):
+            for forward3 in range(12, 17):
+                for forward4 in range(17, 19):
+                    for defender1 in range(2, 7):
+                        for defender2 in range(7, 12):
+                            for defender3 in range(12, 17):
+                                for defender4 in range(17, 19):
+                                    for defender5 in range(2, 7):
+                                        for defender6 in range(7, 12):
+                                            # Проверка на уникальность игроков
+                                            if len(set([goalie, defender1, defender2, defender3, defender4, defender5, defender6, forward1, forward2, forward3, forward4])) == 11:
+                                                # Вывод состава в нужном формате
+                                                print(f"Вратарь {goalie}, Защитник {defender1}, Защитник {defender2}, Защитник {defender3}, Защитник {defender4}, Защитник {defender5}, Защитник {defender6}, Нападающий {forward1}, Нападающий {forward2}, Нападающий {forward3}, Нападающий {forward4}")
 
-# Выбираем случайных игроков по позициям
-selected_goalie = random.sample(goalies, 1)
-if len(forwards) >= 4:
-    selected_forwards = random.sample(forwards, 4)
-else:
-    print(f"Недостаточно Нападающих для формирования состава! Количество нападающих: {len(forwards)}. Запустите программу ещё раз.")
-    exit()
+end_time = timeit.default_timer()
+print(f"Время выполнения алгоритма: {end_time - start_time:.2f} секунд")
 
-if len(defenders) >= 6:
-    selected_defenders = random.sample(defenders, 6)
-else:
-    print(f"Недостаточно защитников для формирования состава! Количество защитников:{len(defenders)}. Запустите программу ещё раз.")
-    exit()
+start_time = timeit.default_timer()
 
-# Формируем окончательный состав
-final_team = [selected_goalie] + selected_forwards + selected_defenders
+# Функция для генерации вариантов составов
+def generate_lineups():
+    global defenders, forwards
+    goalies_combinations = itertools.combinations(all_players, goalies)
+    for goalie in goalies_combinations:
+        defenders_combinations = itertools.combinations(all_players, defenders)
+        for defender in defenders_combinations:
+            forwards_combinations = itertools.combinations(all_players, forwards)
+            for forward in forwards_combinations:
+                # Проверка на уникальность игроков
+                if len(set(goalie).union(set(defender)).union(set(forward))) == 11:
+                    yield list(goalie) + list(defender) + list(forward)
 
-if len(final_team) == 11:
+# Вывод всех вариантов составов
+for lineup in generate_lineups():
+    print(f"Вратарь {lineup[0]}, Защитник {lineup[1]}, Защитник {lineup[2]}, Защитник {lineup[3]}, Защитник {lineup[4]}, Защитник {lineup[5]}, Защитник {lineup[6]}, Нападающий {lineup[7]}, Нападающий {lineup[8]}, Нападающий {lineup[9]}, Нападающий {lineup[10]}")
 
-  # Алгоритмический вариант
-  def generate_rosters_iterative(goalies_list, forwards_list, defensemen_list, main_roster_size):
-      """Генерирует все возможные основные составы команды итеративно без рекурсии."""
-      rosters = []
-      all_players = goalies_list + forwards_list + defensemen_list
-
-      if len(all_players) < main_roster_size:
-          print(f"Ошибка: Недостаточно игроков для формирования состава из {main_roster_size} человек.")
-          return rosters
-
-      # Генерируем перестановки без рекурсии
-      for i in range(len(all_players)):
-          for j in range(i + 1, len(all_players)):
-              all_players[i], all_players[j] = all_players[j], all_players[i]
-              rosters.append(all_players[:main_roster_size].copy())
-              all_players[i], all_players[j] = all_players[j], all_players[i]
-
-      return rosters
-
-  # Вариант с использованием функций Python
-  def generate_rosters_functional(goalies_list, forwards_list, defensemen_list, main_roster_size):
-    """Генерирует все возможные основные составы команды с использованием функций Python."""
-    all_players = goalies_list + forwards_list + defensemen_list
-    print(all_players)
-    return [
-      list(roster)
-      for roster in itertools.combinations(all_players, main_roster_size)
-    ]
-
-  # Измерение времени выполнения
-  rosters_iterative = generate_rosters_iterative(selected_goalie, selected_forwards, selected_defenders, len(final_team))
-  iterative_time = timeit.timeit(
-      lambda: rosters_iterative,
-      number=1
-  )
-  rosters_functional = generate_rosters_functional(selected_goalie, selected_forwards, selected_defenders, len(final_team))
-  functional_time = timeit.timeit(
-      lambda: rosters_functional,
-      number=1
-  )
-
-  # Вывод результатов
-  print("Количество возможных составов:", len(rosters_iterative))
-  print("Время выполнения итеративного алгоритма:", iterative_time, "секунд")
-  print("Время выполнения функционального варианта:", functional_time, "секунд")
-  print("\nВсе возможные варианты Алгоритмического варианта:")
-  for i, roster in enumerate(rosters_iterative):
-      print(f"{i+1}. {roster}")
-  print("\nВсе возможные варианты Функционального:")
-  for i, roster in enumerate(rosters_functional):
-      print(f"{i+1}. {roster}")
-else:
-  print("Такого состава не существует. Попробуйте ввести так, чтобы основных игроков было 11")
+end_time = timeit.default_timer()
+print(f"Время выполнения с помощью функций: {end_time - start_time:.2f} секунд")
