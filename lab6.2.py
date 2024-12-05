@@ -39,28 +39,33 @@ start_time = timeit.default_timer()
 # Функция для генерации вариантов составов
 def generate_lineups():
     global defenders, forwards
-    goalies_combinations = itertools.combinations(all_players, goalies)
+    # Ограничение: Вратарь выбирается только из игроков с номерами меньше 5
+    goalies_combinations = itertools.combinations([p for p in all_players if p < 5], goalies)
     for goalie in goalies_combinations:
-        defenders_combinations = itertools.combinations(all_players, defenders)
+        defenders_combinations = itertools.combinations([p for p in all_players if p not in goalie], defenders)
         for defender in defenders_combinations:
-            forwards_combinations = itertools.combinations(all_players, forwards)
+            forwards_combinations = itertools.combinations(
+                [p for p in all_players if p not in goalie and p not in defender], forwards)
             for forward in forwards_combinations:
                 # Проверка на уникальность игроков
                 if len(set(goalie).union(set(defender)).union(set(forward))) == 11:
-                    # Проверка на ограничение
-                    if defenders <= 2:
+                    # Ограничение: В составе должно быть не менее двух игроков с четными номерами
+                    if sum(1 for player in (goalie + defender + forward) if player % 2 == 0) < 2:
                         continue
-                    # Вывод состава в нужном формате
                     yield list(goalie) + list(defender) + list(forward)
 
-# Целевая функция: Оценивает силу состава по сумме номеров игроков.
-def calculate_total_number(lineup):
-    return sum(lineup)
+# Целевая функция: Оценивает силу состава
+def calculate_total_score(lineup):
+    goalie_score = sum(lineup[:goalies]) * 2  
+    defender_score = sum(lineup[goalies:goalies + defenders]) * 1.5  
+    forward_score = sum(lineup[goalies + defenders:]) * 1.2  
+    return goalie_score + defender_score + forward_score
 
-# Находим состав с максимальной суммой номеров
-best_lineup = max(generate_lineups(), key=calculate_total_number)
+# Находим состав с максимальной оценкой
+best_lineup = max(generate_lineups(), key=calculate_total_score)
 
-print(f"Состав с максимальной суммой номеров: {best_lineup}")
+print(f"Оптимальный состав: {best_lineup}")
+print(f"Оценка состава: {calculate_total_score(best_lineup):.2f}")
 
 end_time = timeit.default_timer()
-print(f"Время выполнения с помощью функций: {end_time - start_time:.2f} секунд")
+print(f"Время выполнения: {end_time - start_time:.2f} секунд")
