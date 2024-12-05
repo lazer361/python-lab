@@ -11,11 +11,11 @@ import matplotlib.pyplot as plt
 
 
 # Функция для вычисления факториала числа
-last_factorial_value = 1
+last_factorial = 1
 def dynamic_factorial(n):
-    global last_factorial_value
-    last_factorial_value = n * last_factorial_value
-    return last_factorial_value
+    global last_factorial
+    last_factorial *= (2*n*(2*n-1))
+    return last_factorial
 
 # Рекурсивная функция для вычисления факториала
 def recursive_factorial(n):
@@ -31,32 +31,32 @@ def iterative_factorial(n):
         result *= i
     return result
 
-last_g_value = 1
-last_f_value = 1
+last_G_value = 1
+last_F_value = 1
 
 # Функция для вычисления значения G
-def calculate_g(n):
-    global last_g_value, last_f_value
+def dynamic_G(n):
+    global last_G_value, last_F_value
     if n == 1:
-        return 1
+        last_G_value = 1
+        return last_G_value
     else:
-        last_g_value = calculate_f(n-1) / (dynamic_factorial(2 * n) + (2 * calculate_g(n-1)))
-        return last_g_value
+        last_G_value = dynamic_F(n - 1) / (dynamic_factorial(2 * n) + 2* dynamic_G(n - 1))
+        return last_G_value
 
 # Функция для вычисления значения F
-step = 1
-def calculate_f(n):
-    global last_g_value, last_f_value
+def dynamic_F(n):
+    global last_G_value, last_F_value, step
     if n == 1:
-        return 1
+        last_F_value = 1
+        return last_F_value
     else:
-        global step
         step *= -1
-        last_f_value = step * ((calculate_f(n-1) - 2 * calculate_g(n-1)))
-        return last_f_value
+        last_F_value = step * (dynamic_F(n - 1) - 2 * dynamic_G(n - 1))
+        return last_F_value
 
 # Функция для записи времени
-def measure_time(func, n):
+def score_time(func, n):
     return timeit.timeit(lambda: func(n), number=1000)
 
 # Значения n для которых мы хотим измерить время выполнения
@@ -64,10 +64,12 @@ n_values = range(2, 11)
 recursive_times = []
 iterative_times = []
 
+
 # Измерение времени выполнения для каждого значения n
 for n in n_values:
-    recursive_times.append(measure_time(recursive_factorial, n))
-    iterative_times.append(measure_time(iterative_factorial, n))
+    recursive_times.append(score_time(recursive_factorial, n))
+    iterative_times.append(score_time(iterative_factorial, n))
+
 
 # Вывод результатов в табличной форме
 print(f"{'n':<10}{'Рекурсивное время (мс)':<25}{'Итерационное время (мс)':<25}")
